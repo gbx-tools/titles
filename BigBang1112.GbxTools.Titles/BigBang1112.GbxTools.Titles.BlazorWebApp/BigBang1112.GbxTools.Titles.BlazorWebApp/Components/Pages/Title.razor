@@ -1,0 +1,9 @@
+﻿@page "/title/{uid}"
+@rendermode InteractiveServer
+
+<BigBang1112.GbxTools.Titles.Title Uid="@Uid"></BigBang1112.GbxTools.Titles.Title>
+
+@code {
+    [Parameter]
+    public string? Uid { get; set; }
+}

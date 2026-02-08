@@ -1,0 +1,170 @@
+@inject TitleService TitleService
+
+<div class="title-background" style="background: linear-gradient(to bottom, #111D, #222E), url('@TitleInfo?.BackgroundUrl')">
+    <ReuContainer>
+        @if (string.IsNullOrEmpty(Uid))
+        {
+            <h2>Invalid title UID</h2>
+        }
+        else if (TitleInfo is null)
+        {
+            @if (loaded)
+            {
+                <h2>Title not found</h2>
+            }
+            else
+            {
+                <h2>Loading...</h2>
+            }
+        }
+        else
+        {
+            <div class="overview">
+                <div style="flex: 1">
+                    <h1><FormattedText Text="@TitleInfo.Name"></FormattedText></h1>
+                    <h3><FormattedText Text="@TitleInfo.Punchline"></FormattedText></h3>
+                    <p><FormattedText Text="@TitleInfo.Description" AllowLinks="true" AllowManialinks="true"></FormattedText></p>
+                    <h3>
+                        Made by <span title="@TitleInfo.AuthorLogin"><FormattedText Text="@TitleInfo.AuthorNickname"></FormattedText></span>
+                        @if (!string.IsNullOrEmpty(TitleInfo.TitleMakerUid))
+                        {
+                            <span>
+                                with <a href="title/@TitleInfo.TitleMakerUid">@TitleInfo.TitleMakerName</a>
+                            </span>
+                        }
+                    </h3>
+                    <div class="infos">
+                        <div class="info">
+                            <div class="info-title">
+                                Cost
+                            </div>
+                            <div class="info-desc">
+                                @TitleInfo.Cost planets
+                            </div>
+                        </div>
+                        <div class="info">
+                            <div class="info-title">
+                                Created at
+                            </div>
+                            <div class="info-desc">
+                                @TitleInfo.CreationDate.ToString("yyyy-MM-dd HH:mm:ss") UTC
+                            </div>
+                        </div>
+                        <div class="info">
+                            <div class="info-title">
+                                Last updated at
+                            </div>
+                            <div class="info-desc">
+                                @TitleInfo.LastUpdate.ToString("yyyy-MM-dd HH:mm:ss") UTC
+                            </div>
+                        </div>
+                    </div>
+                    <div class="features">
+                        @if (TitleInfo.IsEnvironment)
+                        {
+                            <div class="feature">
+                                <div class="feature-title">
+                                    Environment
+                                </div>
+                                <div class="feature-desc">
+                                    Represents an environment
+                                </div>
+                            </div>
+                        }
+                        @if (TitleInfo.IsTrackmania)
+                        {
+                            <div class="feature">
+                                <div class="feature-title">
+                                    TrackMania
+                                </div>
+                                <div class="feature-desc">
+                                    Provides TrackMania features
+                                </div>
+                            </div>
+                        }
+                        @if (TitleInfo.IsShootmania)
+                        {
+                            <div class="feature">
+                                <div class="feature-title">
+                                    ShootMania
+                                </div>
+                                <div class="feature-desc">
+                                    Provides ShootMania features
+                                </div>
+                            </div>
+                        }
+                        @if (TitleInfo.IsSolo)
+                        {
+                            <div class="feature">
+                                <div class="feature-title">
+                                    Solo
+                                </div>
+                                <div class="feature-desc">
+                                    Includes solo campaign
+                                </div>
+                            </div>
+                        }
+                        @if (TitleInfo.IsMultiplayer)
+                        {
+                            <div class="feature">
+                                <div class="feature-title">
+                                    Multiplayer
+                                </div>
+                                <div class="feature-desc">
+                                    Includes multiplayer experience
+                                </div>
+                            </div>
+                        }
+                        @if (TitleInfo.IsMatchmaking)
+                        {
+                            <div class="feature">
+                                <div class="feature-title">
+                                    Matchmaking
+                                </div>
+                                <div class="feature-desc">
+                                    Allows matchmaking
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="infoarea">
+                    <img class="card" src="@TitleInfo.CardUrl" width="512" />
+                    <ReuButton Href="@TitleInfo.DownloadUrl" Variant="ReuButtonVariant.Blue">Download</ReuButton>
+                    <div class="playercounts">
+                        <div class="playercount">
+                            <div class="count">@TitleInfo.OnlinePlayers.ToString("N0")</div>
+                            <div>online players</div>
+                        </div>
+                        <div class="playercount">
+                            <div class="count">@TitleInfo.PlayersLast24h.ToString("N0")</div>
+                            <div>players last 24 hours</div>
+                        </div>
+                        <div class="playercount">
+                            <div class="count">@TitleInfo.Registrations.ToString("N0")</div>
+                            <div>registrations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </ReuContainer>
+</div>
+
+@code {
+    private bool loaded;
+
+#if NET10_0_OR_GREATER
+    [PersistentState]
+#endif
+    public TitleEntity? TitleInfo { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Uid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        TitleInfo ??= await TitleService.GetTitleAsync(Uid);
+        loaded = true;
+    }
+}

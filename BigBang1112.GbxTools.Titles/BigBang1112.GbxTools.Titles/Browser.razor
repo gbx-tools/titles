@@ -1,0 +1,107 @@
+@using System.Collections.Immutable
+
+@inject NavigationManager NavManager
+@inject TitleService TitleService
+
+<input type="search" @bind="SearchQuery" @oninput="OnSearchInput" placeholder="Search...">
+@if (loaded)
+{
+    <div class="grid">
+        @foreach (var (i, title) in titles.OrderBy(t => !pinnedTitles.Contains(t.Uid)).Index())
+        {
+            <div class="card title" @onclick="() => OnTitleClick(title)" @onmouseenter="() => hoveredIndex = i" @onmouseleave="() => hoveredIndex = null">
+                <div class="background">
+                    <img loading="lazy" src="@title.CardUrl" class="@(loadingUid == title.Uid ? "loading" : "")" />
+                    @if (hoveredIndex == i || pinnedTitles.Contains(title.Uid))
+                    {
+                        <div class="actions">
+                            <div class="action"
+                            style="background-image: url('_content/BigBang1112.GbxTools.Titles/img/keep@(pinnedTitles.Contains(title.Uid) ? "_fill" : "").svg')"
+                            title="Pin"
+                            @onclick="() => TogglePin(title)" @onclick:stopPropagation="true"></div>
+                        </div>
+                        <div class="quickbuttons">
+                            <a href="@title.DownloadUrl" onclick="arguments[0].stopPropagation()" class="download" title="Download Title.Pack.Gbx">
+                            </a>
+                        </div>
+                    }
+
+                    @if (loadingUid == title.Uid)
+                    {
+                        <ReuLoader></ReuLoader>
+                    }
+                </div>
+                <div class="caption">
+                    <FormattedText Text="@title.Name"></FormattedText>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <ReuCenter>
+        <ReuLoader></ReuLoader>
+    </ReuCenter>
+}
+
+@code {
+    private IEnumerable<SearchTitleInfo> titles = [];
+    private string[] filters = [];
+    private HashSet<string> pinnedTitles = [];
+
+    private string searchQuery = string.Empty;
+    private string SearchQuery
+    {
+        get => searchQuery;
+        set
+        {
+            if (searchQuery == value)
+            {
+                return;
+            }
+
+            searchQuery = value;
+            _ = SearchTitlesAsync();
+        }
+    }
+
+    private int? hoveredIndex;
+    private string? loadingUid;
+
+    private bool loaded;
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        SearchQuery = e.Value?.ToString() ?? "";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SearchTitlesAsync();
+        loaded = true;
+    }
+
+    private async Task SearchTitlesAsync()
+    {
+        titles = await TitleService.SearchTitlesAsync(searchQuery);
+    }
+
+    private void TogglePin(SearchTitleInfo title)
+    {
+        if (pinnedTitles.Contains(title.Uid))
+        {
+            pinnedTitles.Remove(title.Uid);
+        }
+        else
+        {
+            pinnedTitles.Add(title.Uid);
+        }
+    }
+
+    private void OnTitleClick(SearchTitleInfo title)
+    {
+        loadingUid = title.Uid;
+        NavManager.NavigateTo($"/title/{title.Uid}");
+    }
+}
