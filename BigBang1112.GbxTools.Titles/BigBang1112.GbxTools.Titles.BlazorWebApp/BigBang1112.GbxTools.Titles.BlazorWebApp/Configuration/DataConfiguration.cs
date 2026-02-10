@@ -9,9 +9,11 @@ internal static class DataConfiguration
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            //var connectionStr = config.GetConnectionString("DefaultConnection");
-            //options.UseMySql(connectionStr, ServerVersion.AutoDetect(connectionStr));
-            options.UseInMemoryDatabase("TitlesDb");
+            var connectionStr = config.GetConnectionString("DefaultConnection");
+            options.UseMySql(connectionStr, ServerVersion.AutoDetect(connectionStr), options =>
+            {
+                options.MigrationsAssembly(typeof(DataConfiguration).Assembly);
+            });
         });
     }
 
@@ -21,9 +23,9 @@ internal static class DataConfiguration
 
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        /*if (dbContext.Database.IsRelational())
+        if (dbContext.Database.IsRelational())
         {
             dbContext.Database.Migrate();
-        }*/
+        }
     }
 }

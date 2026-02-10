@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-
-namespace BigBang1112.GbxTools.Titles.Entities;
+﻿namespace BigBang1112.GbxTools.Titles.Entities;
 
 public class HistoricalPlayerCountEntity
 {
@@ -10,4 +7,5 @@ public class HistoricalPlayerCountEntity
     public required int Registrations { get; set; }
     public required int PlayersLast24h { get; set; }
     public required int OnlinePlayers { get; set; }
+    public DateTimeOffset RecordedAt { get; set; } = DateTimeOffset.UtcNow;
 }

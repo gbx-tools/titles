@@ -2,6 +2,7 @@
     flex: 1;
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
 }
 
 .overview {
@@ -45,6 +46,7 @@
 
 .card {
     width: calc(100% - 4px);
+    aspect-ratio: 16 / 9;
     border-radius: 10px;
     border: 2px solid #333;
     box-shadow: 0 2px 20px #0008;
@@ -87,6 +89,7 @@
     border-radius: 10px;
     gap: 0.5rem;
     margin-top: 1rem;
+    flex-wrap: wrap;
 }
 
 .feature {
@@ -112,3 +115,35 @@
     display: flex;
     align-items: center;
 }
+
+textarea.script {
+    resize: none;
+    height: 300px;
+    overflow: auto;
+    width: calc(100% - 10px);
+}
+
+.included-packs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.included-pack {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: #5555;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+}
+
+    .included-pack div {
+        flex: 1;
+    }
+
+    .included-pack .creation-date {
+        text-align: right;
+    }

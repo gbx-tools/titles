@@ -1,6 +1,8 @@
+@using GBX.NET.PAK
 @inject TitleService TitleService
+@inject HttpClient Http
 
-<div class="title-background" style="background: linear-gradient(to bottom, #111D, #222E), url('@TitleInfo?.BackgroundUrl')">
+<div class="title-background" style="background-image: linear-gradient(to bottom, #111D, #333E), url('@TitleInfo?.BackgroundUrl')">
     <ReuContainer>
         @if (string.IsNullOrEmpty(Uid))
         {
@@ -29,7 +31,7 @@
                         @if (!string.IsNullOrEmpty(TitleInfo.TitleMakerUid))
                         {
                             <span>
-                                with <a href="title/@TitleInfo.TitleMakerUid">@TitleInfo.TitleMakerName</a>
+                                with <a href="title/@TitleInfo.TitleMakerUid"><FormattedText Text="@TitleInfo.TitleMakerName"></FormattedText></a>
                             </span>
                         }
                     </h3>
@@ -127,9 +129,54 @@
                             </div>
                         }
                     </div>
+                    @if (IncludedPacks?.Any() == true)
+                    {
+                        <h3>Included packs</h3>
+                        <div class="included-packs">
+                            @foreach (var pack in IncludedPacks)
+                            {
+                                <div class="included-pack">
+                                    <div>@pack.Name</div>
+                                    <div><span title="@pack.AuthorLogin"><FormattedText Text="@pack.AuthorNickname"></FormattedText></span></div>
+                                    <div class="creation-date">@pack.CreationDate.ToString("yyyy-MM-dd HH:mm:ss") UTC</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    @if (Files?.Any() == true)
+                    {
+                        <h3 style="text-align: center">Contents</h3>
+                    }
+
+                    @if (Scripts?.Any() == true)
+                    {
+                        <h3 style="text-align: center">Multiplayer scripts</h3>
+                        <ReuExpansionPanels>
+                            @foreach (var script in Scripts)
+                            {
+                                <ReuExpansionPanel>
+                                    <TitleContent>
+                                        @if (string.IsNullOrWhiteSpace(script.FileName))
+                                        {
+                                            <span style="color:#888">(unnamed)</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@script.FileName</span>
+                                        }
+                                    </TitleContent>
+                                    <ChildContent>
+                                        <textarea class="script" readonly>
+                                            @script.MatchSettings
+                                        </textarea>
+                                    </ChildContent>
+                                </ReuExpansionPanel>
+                            }
+                        </ReuExpansionPanels>
+                    }
                 </div>
                 <div class="infoarea">
-                    <img class="card" src="@TitleInfo.CardUrl" width="512" />
+                    <img class="card" src="@TitleInfo.CardUrl" alt="@TitleInfo.DeformattedName" width="512" />
                     <ReuButton Href="@TitleInfo.DownloadUrl" Variant="ReuButtonVariant.Blue">Download</ReuButton>
                     <div class="playercounts">
                         <div class="playercount">
@@ -145,6 +192,96 @@
                             <div>registrations</div>
                         </div>
                     </div>
+                    <div class="table" style="display:grid;grid-template-columns:auto 1fr;gap:0.7rem 1rem;margin-top:0.5rem">
+                        <div>Title UID:</div>
+                        <div>@TitleInfo.Id</div>
+                        @if (TitleMetadata is not null)
+                        {
+                            @if (TitleMetadata.ContentLength.HasValue)
+                            {
+                                <div>Content size:</div>
+                                <div>@ByteSizeLib.ByteSize.FromBytes(TitleMetadata.ContentLength.Value)</div>
+                            }
+                            <div>Creation build info:</div>
+                            <div style="overflow:auto;scrollbar-width: thin;white-space:nowrap">@TitleMetadata.CreationBuildInfo</div>
+                            @if (TitleMetadata.CreationDate.HasValue)
+                            {
+                                <div>Creation date:</div>
+                                <div>@TitleMetadata.CreationDate.Value.ToString("yyyy-MM-dd HH:mm:ss") UTC</div>
+                            }
+                            @if (TitleMetadata.Checksum is not null)
+                            {
+                                <div>Checksum:</div>
+                                <div style="overflow:auto;scrollbar-width: thin;"><code>@Convert.ToHexString(TitleMetadata.Checksum)</code></div>
+                            }
+                            @if (TitleMetadata.HeaderMD5 is not null)
+                            {
+                                <div>Header MD5:</div>
+                                <div style="overflow:auto;scrollbar-width: thin;"><code>@Convert.ToHexString(TitleMetadata.HeaderMD5)</code></div>
+                            }
+                            <div>PAK version:</div>
+                            <div>@TitleMetadata.Version</div>
+                            @if (TitleMetadata.AuthorUrl is not null)
+                            {
+                                <div>Author URL:</div>
+                                <div><a href="@TitleMetadata.AuthorUrl">Link</a></div>
+                            }
+                            @if (!string.IsNullOrEmpty(TitleMetadata.ManialinkUrl))
+                            {
+                                <div>Manialink:</div>
+                                <div><a href="maniaplanet:///:@TitleMetadata.ManialinkUrl">Link</a></div>
+                            }
+                            @if (!string.IsNullOrEmpty(TitleMetadata.DownloadUrl))
+                            {
+                                <div>Download URL:</div>
+                                <div><a href="@TitleMetadata.DownloadUrl">Link</a></div>
+                            }
+                            @if (TitleMetadata.UsageSubDir is not null)
+                            {
+                                <div>Usage sub-directory:</div>
+                                <div>@TitleMetadata.UsageSubDir</div>
+                            }
+                            @if (TitleMetadata.HeaderMaxSize.HasValue)
+                            {
+                                <div>Header max size:</div>
+                                <div>@ByteSizeLib.ByteSize.FromBytes(TitleMetadata.HeaderMaxSize.Value)</div>
+                            }
+                            @if (TitleMetadata.GbxHeadersComprSize.HasValue && TitleMetadata.GbxHeadersSize.HasValue)
+                            {
+                                <div>GBX headers size:</div>
+                                <div>
+                                    <span title="Compressed GBX headers size">@ByteSizeLib.ByteSize.FromBytes(TitleMetadata.GbxHeadersComprSize.Value)</span>
+                                    <span title="@((1 - TitleMetadata.GbxHeadersComprSize.Value / (float)TitleMetadata.GbxHeadersSize.Value).ToString("P")) compressed">/</span>
+                                    <span title="Uncompressed GBX headers size">@ByteSizeLib.ByteSize.FromBytes(TitleMetadata.GbxHeadersSize.Value)</span>
+                                </div>
+                            }
+                            <div>Private header:</div>
+                            <div>@TitleMetadata.IsHeaderPrivate</div>
+                            <div>Private data:</div>
+                            <div>@TitleMetadata.IsDataPrivate</div>
+                            <div>Uses default header key:</div>
+                            <div>@TitleMetadata.UseDefaultHeaderKey</div>
+                            <div>Files:</div>
+                            <div>@(Files?.Count().ToString("N0") ?? "?")</div>
+                        }
+                    </div>
+                    @if (TitleMetadata is not null)
+                    {
+                        @if (!string.IsNullOrEmpty(TitleMetadata.Xml))
+                        {
+                            <div>
+                                <h3 style="text-align: center">XML</h3>
+                                <pre style="font-size:80%;overflow:auto">@System.Xml.Linq.XDocument.Parse(TitleMetadata.Xml)</pre>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(TitleMetadata.Comments))
+                        {
+                            <div>
+                                <h3 style="text-align: center">Comments</h3>
+                                <p><FormattedText Text="@TitleMetadata.Comments" AllowLinks="true" AllowManialinks="true"></FormattedText></p>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
         }
@@ -159,12 +296,44 @@
 #endif
     public TitleEntity? TitleInfo { get; set; }
 
+#if NET10_0_OR_GREATER
+    [PersistentState]
+#endif
+    public IEnumerable<TitleScriptEntity>? Scripts { get; set; }
+
+#if NET10_0_OR_GREATER
+    [PersistentState]
+#endif
+    public TitleMetadataEntity? TitleMetadata { get; set; }
+
+#if NET10_0_OR_GREATER
+    [PersistentState]
+#endif
+    public IEnumerable<TitleIncludedPackEntity>? IncludedPacks { get; set; }
+
+#if NET10_0_OR_GREATER
+    [PersistentState]
+#endif
+    public IEnumerable<TitleFileEntity>? Files { get; set; }
+
     [Parameter, EditorRequired]
     public string Uid { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         TitleInfo ??= await TitleService.GetTitleAsync(Uid);
+        TitleMetadata ??= await TitleService.GetTitleMetadataAsync(Uid);
+        IncludedPacks ??= await TitleService.GetTitleIncludedPacksAsync(Uid);
         loaded = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Files ??= await TitleService.GetTitleFilesAsync(Uid);
+            Scripts ??= await TitleService.FetchTitleScriptsAsync(Uid);
+            StateHasChanged();
+        }
     }
 }

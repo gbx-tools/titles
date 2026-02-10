@@ -3,7 +3,7 @@
 @inject NavigationManager NavManager
 @inject TitleService TitleService
 
-<input type="search" @bind="SearchQuery" @oninput="OnSearchInput" placeholder="Search...">
+<input type="search" @oninput="OnSearchInputAsync" @onchange="OnSearchChangeAsync" placeholder="Search...">
 @if (loaded)
 {
     <div class="grid">
@@ -51,29 +51,39 @@ else
     private HashSet<string> pinnedTitles = [];
 
     private string searchQuery = string.Empty;
-    private string SearchQuery
-    {
-        get => searchQuery;
-        set
-        {
-            if (searchQuery == value)
-            {
-                return;
-            }
-
-            searchQuery = value;
-            _ = SearchTitlesAsync();
-        }
-    }
 
     private int? hoveredIndex;
     private string? loadingUid;
 
     private bool loaded;
 
-    private void OnSearchInput(ChangeEventArgs e)
+    private async Task OnSearchInputAsync(ChangeEventArgs e)
     {
-        SearchQuery = e.Value?.ToString() ?? "";
+        var value = e.Value?.ToString() ?? "";
+
+        if (searchQuery == value)
+        {
+            return;
+        }
+
+        searchQuery = value;
+        await SearchTitlesAsync();
+    }
+
+    private async Task OnSearchChangeAsync(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? "";
+        await SearchTitlesAsync();
+
+        if (!titles.Any())
+        {
+            var title = await TitleService.FetchTitleAsync(searchQuery);
+
+            if (title is not null)
+            {
+                titles = [TitleService.MapToSearchTitleInfo(title)];
+            }
+        }
     }
 
     protected override async Task OnInitializedAsync()

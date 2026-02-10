@@ -1,5 +1,4 @@
 ﻿using BigBang1112.GbxTools.Titles.Data;
-using BigBang1112.GbxTools.Titles.Entities;
 using ManiaAPI.ManiaPlanetAPI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,11 +8,11 @@ using TmEssentials;
 
 namespace BigBang1112.GbxTools.Titles.Services;
 
-internal class TitleFetchHostedService : BackgroundService
+internal sealed class TitleFetchBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory serviceScopeFactory;
 
-    public TitleFetchHostedService(IServiceScopeFactory serviceScopeFactory)
+    public TitleFetchBackgroundService(IServiceScopeFactory serviceScopeFactory)
     {
         this.serviceScopeFactory = serviceScopeFactory;
     }
@@ -25,61 +24,37 @@ internal class TitleFetchHostedService : BackgroundService
             await using var scope = serviceScopeFactory.CreateAsyncScope();
 
             var mpIngame = scope.ServiceProvider.GetRequiredService<ManiaPlanetIngameAPI>();
-            var fetchedTitles = await mpIngame.SearchTitlesAsync(length: 1000, cancellationToken: stoppingToken);
-
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var exporter = scope.ServiceProvider.GetRequiredService<TitleExporter>();
+
+            ImmutableList<IngameTitle> fetchedTitles;
+
+            try
+            { 
+                fetchedTitles = await mpIngame.SearchTitlesAsync(length: 1000, cancellationToken: stoppingToken);
+            }
+            catch (Exception)
+            {
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                continue;
+            }
+
             var storedTitles = await db.Titles.ToDictionaryAsync(t => t.Id, stoppingToken);
+
+            var titlesToExport = new List<IngameTitle>();
 
             foreach (var title in fetchedTitles)
             {
                 if (!storedTitles.TryGetValue(title.Uid, out var storedTitle))
                 {
-                    await db.Titles.AddAsync(new TitleEntity
-                    {
-                        Id = title.Uid,
-                        Name = title.Name,
-                        DeformattedName = TextFormatter.Deformat(title.Name),
-                        Description = title.Description,
-                        Punchline = title.Punchline,
-                        AuthorLogin = title.AuthorLogin,
-                        AuthorNickname = title.AuthorNickname,
-                        DownloadUrl = title.DownloadUrl,
-                        CreationDate = title.CreationDate,
-                        LastUpdate = title.LastUpdate,
-                        Cost = title.Cost,
-                        Registrations = title.Registrations,
-                        PlayersLast24h = title.PlayersLast24h,
-                        OnlinePlayers = title.OnlinePlayers,
-                        FacebookUrl = title.FacebookUrl,
-                        TwitterUrl = title.TwitterUrl,
-                        YoutubeUrl = title.YoutubeUrl,
-                        ForumUrl = title.ForumUrl,
-                        WebsiteUrl = title.WebsiteUrl,
-                        CardUrl = title.CardUrl,
-                        BackgroundUrl = title.BackgroundUrl,
-                        LogoUrl = title.LogoUrl,
-                        IsSolo = title.IsSolo,
-                        IsMultiplayer = title.IsSolo,
-                        IsEnvironment = title.IsEnvironment,
-                        IsTrackmania = title.IsTrackmania,
-                        IsShootmania = title.IsShootmania,
-                        IsMatchmaking = title.IsMatchmaking,
-                        PrimaryColor = title.PrimaryColor,
-                        TitleMakerUid = title.TitleMakerUid,
-                        TitleMakerName = title.TitleMakerName,
-                        TitlePageUrl = title.TitlePageUrl
-                    }, stoppingToken);
-
+                    titlesToExport.Add(title);
+                    await db.Titles.AddAsync(TitleService.MapToTitleEntity(title), stoppingToken);
                     continue;
                 }
 
                 if (storedTitle.LastUpdate != title.LastUpdate)
                 {
-                    await db.HistoricalUpdates.AddAsync(new()
-                    {
-                        Title = storedTitle,
-                        LastUpdate = title.LastUpdate
-                    }, stoppingToken);
+                    titlesToExport.Add(title);
                 }
 
                 if (storedTitle.Registrations != title.Registrations
@@ -127,6 +102,11 @@ internal class TitleFetchHostedService : BackgroundService
             }
 
             await db.SaveChangesAsync(stoppingToken);
+
+            foreach (var title in titlesToExport)
+            {
+                await exporter.EnqueueExportAsync(title, stoppingToken);
+            }
 
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }

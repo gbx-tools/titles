@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="GBX.NET.PAK" Version="2.4.1-nightly.20260210.c24fcba4" />
         <PackageReference Include="ManiaAPI.ManiaPlanetAPI" Version="2.6.0" />
         <PackageReference Include="ManiaAPI.ManiaPlanetAPI.Extensions.Hosting" Version="2.6.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="10.2.0" />

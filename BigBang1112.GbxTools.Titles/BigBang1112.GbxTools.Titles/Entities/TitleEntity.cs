@@ -56,4 +56,7 @@ public class TitleEntity
     public required string TitleMakerName { get; set; }
     [StringLength(128)]
     public required string TitlePageUrl { get; set; }
+
+    public DateTimeOffset StoredAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? ArchivedAt { get; set; }
 }

@@ -7,4 +7,7 @@ public sealed record SearchTitleInfo
     public required string DeformattedName { get; init; }
     public required string CardUrl { get; init; }
     public required string DownloadUrl { get; init; }
+    public required int Registrations { get; set; }
+    public required int PlayersLast24h { get; set; }
+    public required int OnlinePlayers { get; set; }
 }

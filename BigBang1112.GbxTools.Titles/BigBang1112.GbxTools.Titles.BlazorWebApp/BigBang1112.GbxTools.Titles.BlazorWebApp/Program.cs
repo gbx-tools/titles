@@ -10,6 +10,11 @@ builder.Services.AddTelemetryServices(builder.Configuration, builder.Environment
 
 var app = builder.Build();
 
+if (builder.Environment.IsDevelopment())
+{
+    app.MigrateDatabase();
+}
+
 app.UseMiddleware();
 
 app.Run();
