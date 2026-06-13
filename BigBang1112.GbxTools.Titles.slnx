@@ -2,4 +2,7 @@
   <Project Path="BigBang1112.GbxTools.Titles/BigBang1112.GbxTools.Titles.BlazorWebApp/BigBang1112.GbxTools.Titles.BlazorWebApp/BigBang1112.GbxTools.Titles.BlazorWebApp.csproj" />
   <Project Path="BigBang1112.GbxTools.Titles/BigBang1112.GbxTools.Titles.Photino/BigBang1112.GbxTools.Titles.Photino.csproj" />
   <Project Path="BigBang1112.GbxTools.Titles/BigBang1112.GbxTools.Titles/BigBang1112.GbxTools.Titles.csproj" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
 </Solution>

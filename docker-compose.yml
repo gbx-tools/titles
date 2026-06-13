@@ -1,0 +1,41 @@
+services:
+  bigbang1112.gbxtools.titles.blazorwebapp:
+    image: ${DOCKER_REGISTRY-}bigbang1112gbxtoolstitlesblazorwebapp
+    build:
+      context: .
+      dockerfile: BigBang1112.GbxTools.Titles/BigBang1112.GbxTools.Titles.BlazorWebApp/BigBang1112.GbxTools.Titles.BlazorWebApp/Dockerfile
+
+  mariadb:
+    image: mariadb:lts
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: yes
+      MARIADB_DATABASE: titles
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  phpmyadmin:
+    image: beeyev/phpmyadmin-lightweight:latest
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: root
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    ports:
+      - "18888:18888"
+    environment:
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: true
+
+volumes:
+  mariadb-data:

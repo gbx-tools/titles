@@ -53,12 +53,12 @@ input {
     }
 
     .card.title {
-        background: #222;
+        background: var(--color-surface);
     }
 
         .card.title:hover {
             z-index: 10;
-            background: #333;
+            background: var(--color-surface-hover);
         }
 
     .card.load {
@@ -97,15 +97,19 @@ input {
     display: block;
     width: 40px;
     height: 40px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(127, 127, 127, 0.2);
     border-radius: 4px;
     background-image: url('img/download.svg');
     background-size: 30px;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: #222D;
+    background-color: #111D;
 }
 
     .download:hover {
-        background-color: #333D;
+        background-color: #222D;
     }
+
+[data-theme="light"] .download {
+    filter: invert(1);
+}

@@ -5,6 +5,38 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+
+    <script>
+        window.reuTheme = {
+            get: function () {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            },
+            set: function (theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                try { localStorage.setItem('reu-theme', theme); } catch (e) { }
+                return theme;
+            },
+            toggle: function () {
+                return window.reuTheme.set(window.reuTheme.get() === 'light' ? 'dark' : 'light');
+            }
+        };
+        function applyTheme() {
+            var theme;
+            try { theme = localStorage.getItem('reu-theme'); } catch (e) { }
+            if (!theme) {
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+                    ? 'light' : 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        applyTheme();
+        new MutationObserver(function () {
+            if (!document.documentElement.getAttribute('data-theme')) {
+                applyTheme();
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    </script>
+
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["css/app.css"]" />
     <link rel="stylesheet" href="@Assets["BigBang1112.GbxTools.Titles.BlazorWebApp.styles.css"]" />

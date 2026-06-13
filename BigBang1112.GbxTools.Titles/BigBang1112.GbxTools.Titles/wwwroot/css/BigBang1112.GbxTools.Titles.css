@@ -1,3 +1,24 @@
 body {
-    background-color: #111;
+    background-color: var(--color-bg);
+}
+
+.reu-button {
+    width: auto;
+}
+
+.reu-expansion-panels {
+    gap: 0.5rem;
+}
+
+:root,
+[data-theme="dark"],
+.reu-theme-dark {
+    --color-image-bg-overlay-weak: #111D;
+    --color-image-bg-overlay-strong: #333E;
+}
+
+[data-theme="light"],
+.reu-theme-light {
+    --color-image-bg-overlay-weak: #EEED;
+    --color-image-bg-overlay-strong: #BBBE;
 }

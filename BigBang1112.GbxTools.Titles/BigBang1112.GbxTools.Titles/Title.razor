@@ -2,7 +2,7 @@
 @inject TitleService TitleService
 @inject HttpClient Http
 
-<div class="title-background" style="background-image: linear-gradient(to bottom, #111D, #333E), url('@TitleInfo?.BackgroundUrl')">
+<div class="title-background" style="background-image: linear-gradient(to bottom, var(--color-image-bg-overlay-weak), var(--color-image-bg-overlay-strong)), url('@TitleInfo?.BackgroundUrl')">
     <ReuContainer>
         @if (string.IsNullOrEmpty(Uid))
         {
@@ -146,6 +146,7 @@
                     @if (Files?.Any() == true)
                     {
                         <h3 style="text-align: center">Contents</h3>
+                        <ReuFileBrowser Root="default"></ReuFileBrowser>
                     }
 
                     @if (Scripts?.Any() == true)
