@@ -9,8 +9,8 @@ internal static class DataConfiguration
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            var provider = config["Database:Provider"];
-            if (string.Equals(provider, "InMemory", StringComparison.OrdinalIgnoreCase))
+            var inMemory = config.GetValue<bool>("Database:InMemory");
+            if (inMemory)
             {
                 options.UseInMemoryDatabase(config["Database:Name"] ?? "gbx_tools_titles");
                 return;

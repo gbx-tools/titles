@@ -88,13 +88,17 @@ public sealed class TitleArchiveBackgroundService : BackgroundService
 
         foreach (var title in titles)
         {
-            var titleDirectory = Path.Combine(archivePath, "titles", ToSafeDirectoryName(title.Id));
+            var safeTitleId = ToSafeDirectoryName(title.Id);
+            var titleDirectory = Path.Combine(archivePath, "titles", safeTitleId);
+            var packPath = Path.Combine(titleDirectory, $"{safeTitleId}.Title.Pack.gbx");
+
+            MigrateLegacyPack(manifest, archivePath, Path.Combine(titleDirectory, "title.pak"), packPath);
 
             await ArchiveResourceAsync(
                 http,
                 manifest,
                 archivePath,
-                Path.Combine(titleDirectory, "title.pak"),
+                packPath,
                 title.DownloadUrl,
                 title.LastUpdate,
                 forceRefresh: false,
@@ -108,6 +112,23 @@ public sealed class TitleArchiveBackgroundService : BackgroundService
 
         await SaveManifestAsync(manifestPath, manifest, cancellationToken);
         status.Completed(manifest.Resources.Count, manifest.Resources.Values.Sum(x => x.Length));
+    }
+
+    private static void MigrateLegacyPack(ArchiveManifest manifest, string archivePath, string legacyPath, string packPath)
+    {
+        var legacyKey = Path.GetRelativePath(archivePath, legacyPath).Replace(Path.DirectorySeparatorChar, '/');
+        var packKey = Path.GetRelativePath(archivePath, packPath).Replace(Path.DirectorySeparatorChar, '/');
+
+        if (File.Exists(legacyPath) && !File.Exists(packPath))
+        {
+            File.Move(legacyPath, packPath);
+        }
+
+        if (manifest.Resources.TryGetValue(legacyKey, out var entry))
+        {
+            manifest.Resources.Remove(legacyKey);
+            manifest.Resources.TryAdd(packKey, entry);
+        }
     }
 
     private async Task ArchiveResourceAsync(
