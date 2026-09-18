@@ -7,8 +7,8 @@
         <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
         <UserSecretsId>1ffc27c4-2d4a-42d6-ade7-210602f42fc8</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <DockerfileContext>..\..\..</DockerfileContext>
-        <DockerComposeProjectPath>..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
+        <DockerfileContext>..\..</DockerfileContext>
+        <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\BigBang1112.GbxTools.Titles\BigBang1112.GbxTools.Titles.csproj" />
+      <ProjectReference Include="..\BigBang1112.GbxTools.Titles\BigBang1112.GbxTools.Titles.csproj" />
     </ItemGroup>
 
     <ItemGroup>

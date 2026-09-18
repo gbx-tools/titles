@@ -11,7 +11,7 @@ RUN dotnet workload install wasm-tools
 WORKDIR /src
 
 COPY . .
-WORKDIR /src/BigBang1112.GbxTools.Titles.BlazorWebApp/
+WORKDIR /src/Src/BigBang1112.GbxTools.Titles.BlazorWebApp/
 
 ARG TARGETARCH
 

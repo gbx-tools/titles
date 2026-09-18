@@ -3,7 +3,7 @@ services:
     image: ${DOCKER_REGISTRY-}bigbang1112gbxtoolstitlesblazorwebapp
     build:
       context: .
-      dockerfile: BigBang1112.GbxTools.Titles/BigBang1112.GbxTools.Titles.BlazorWebApp/BigBang1112.GbxTools.Titles.BlazorWebApp/Dockerfile
+      dockerfile: Src/BigBang1112.GbxTools.Titles.BlazorWebApp/Dockerfile
 
   mariadb:
     image: mariadb:lts
