@@ -13,8 +13,8 @@ public static class TitleFileBrowserTree
         {
             var folder = root;
             var segments = file.FolderPath
-                .Split('\\', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Concat(file.Name.Split('\\', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                .Split(['\\', '/'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Concat(file.Name.Split(['\\', '/'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 .ToArray();
 
             if (segments.Length == 0)
