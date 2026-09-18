@@ -98,8 +98,6 @@ internal sealed class TitleExportBackgroundService : BackgroundService
             await db.TitleMetadata.AddAsync(titleMetadataEntity, stoppingToken);
 
             await db.SaveChangesAsync(stoppingToken);
-
-            // if set as archived, also download the pak
         }
     }
 

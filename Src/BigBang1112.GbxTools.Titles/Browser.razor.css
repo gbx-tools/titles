@@ -80,6 +80,8 @@ input {
     width: 32px;
     height: 32px;
     background-size: cover;
+    filter: drop-shadow(1px 1px 1px #222);
+    transition: transform 0.1s;
 }
 
     .action:hover {

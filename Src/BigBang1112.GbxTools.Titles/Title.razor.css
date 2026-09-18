@@ -123,6 +123,12 @@ textarea.script {
     width: calc(100% - 10px);
 }
 
+.section-loader {
+    min-height: 8rem;
+    display: grid;
+    place-items: center;
+}
+
 .file-browser {
     height: 24rem;
     opacity: 0.9;

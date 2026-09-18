@@ -25,8 +25,8 @@ ENV ASPNETCORE_HTTP_PORTS=8080
 
 COPY --from=build /app .
 
-RUN mkdir -p /home/app/.aspnet/DataProtection-Keys \
-    && chown -R $APP_UID /home/app/.aspnet
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys /app/title-archive \
+    && chown -R $APP_UID /home/app/.aspnet /app/title-archive
 
 USER $APP_UID
 ENTRYPOINT ["dotnet", "BigBang1112.GbxTools.Titles.BlazorWebApp.dll"]

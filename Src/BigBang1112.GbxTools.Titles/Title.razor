@@ -1,6 +1,7 @@
 @using GBX.NET.PAK
 @inject TitleService TitleService
 @inject HttpClient Http
+@inject IServiceScopeFactory ServiceScopeFactory
 
 <div class="title-background" style="background-image: linear-gradient(to bottom, var(--color-image-bg-overlay-weak), var(--color-image-bg-overlay-strong)), url('@TitleInfo?.BackgroundUrl')">
     <ReuContainer>
@@ -143,7 +144,14 @@
                             }
                         </div>
                     }
-                    @if (Files?.Any() == true)
+                    @if (filesLoading)
+                    {
+                        <h3 style="text-align: center">Contents</h3>
+                        <div class="section-loader">
+                            <ReuLoader />
+                        </div>
+                    }
+                    else if (Files?.Any() == true)
                     {
                         <h3 style="text-align: center">Contents</h3>
                         <div class="file-browser">
@@ -151,7 +159,14 @@
                         </div>
                     }
 
-                    @if (Scripts?.Any() == true)
+                    @if (scriptsLoading)
+                    {
+                        <h3 style="text-align: center">Multiplayer scripts</h3>
+                        <div class="section-loader">
+                            <ReuLoader />
+                        </div>
+                    }
+                    else if (Scripts?.Any() == true)
                     {
                         <h3 style="text-align: center">Multiplayer scripts</h3>
                         <ReuExpansionPanels>
@@ -293,6 +308,8 @@
 
 @code {
     private bool loaded;
+    private bool filesLoading = true;
+    private bool scriptsLoading = true;
 
 #if NET10_0_OR_GREATER
     [PersistentState]
@@ -336,10 +353,41 @@
     {
         if (firstRender)
         {
-            Files ??= await TitleService.GetTitleFilesAsync(Uid);
+            await LoadFilesAsync();
+            await LoadScriptsAsync();
+        }
+    }
+
+    private async Task LoadFilesAsync()
+    {
+        try
+        {
+            await using var scope = ServiceScopeFactory.CreateAsyncScope();
+            var titleService = scope.ServiceProvider.GetRequiredService<TitleService>();
+
+            Files ??= await titleService.GetTitleFilesAsync(Uid);
             FileRoot = TitleFileBrowserTree.Create(Files);
-            Scripts ??= await TitleService.FetchTitleScriptsAsync(Uid);
-            StateHasChanged();
+        }
+        finally
+        {
+            filesLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadScriptsAsync()
+    {
+        try
+        {
+            await using var scope = ServiceScopeFactory.CreateAsyncScope();
+            var titleService = scope.ServiceProvider.GetRequiredService<TitleService>();
+
+            Scripts ??= await titleService.FetchTitleScriptsAsync(Uid);
+        }
+        finally
+        {
+            scriptsLoading = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

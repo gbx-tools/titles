@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Src/BigBang1112.GbxTools.Titles.BlazorWebApp/Dockerfile
+    volumes:
+      - title-archive:/app/title-archive
 
   mariadb:
     image: mariadb:lts
@@ -39,3 +41,4 @@ services:
 
 volumes:
   mariadb-data:
+  title-archive:

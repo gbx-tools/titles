@@ -1,5 +1,8 @@
 ﻿@page "/about"
 
+@using BigBang1112.GbxTools.Titles.Services
+@inject TitleArchiveStatus ArchiveStatus
+
 <ReuContainer>
     <h2>About</h2>
 
@@ -16,8 +19,27 @@
             <li>Analytics of player activity on these title packs (historically late, but better late than never)</li>
         </ul>
     </p>
+
+    @if (Archive.Enabled)
+    {
+        <h3>Local archive</h3>
+        <p>
+            The local preservation archive currently tracks <b>@Archive.ArchivedResources.ToString("N0")</b> resources
+            (@ByteSizeLib.ByteSize.FromBytes(Archive.ArchivedBytes)).
+            It has updated <b>@Archive.UpdatedResources.ToString("N0")</b> resources since this application started.
+            @if (Archive.LastCompletedAt is { } lastCompletedAt)
+            {
+                <span>Its last synchronization completed @lastCompletedAt.ToString("u").</span>
+            }
+        </p>
+
+        @if (!string.IsNullOrWhiteSpace(Archive.LastError))
+        {
+            <p>The most recent archive synchronization ended in an error. See the application logs for details.</p>
+        }
+    }
 </ReuContainer>
 
 @code {
-
+    private TitleArchiveSnapshot Archive => ArchiveStatus.Snapshot();
 }
