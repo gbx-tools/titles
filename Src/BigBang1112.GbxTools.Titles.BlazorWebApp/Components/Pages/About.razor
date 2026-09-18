@@ -8,7 +8,7 @@
 
     <p>
         <b>Title Archive</b> (titles.gbx.tools) is an enhanced ManiaPlanet title pack browser focused on archiving.
-        The project is fully open-source and you can also archive locally using the desktop application!
+        The project is fully open-source and you will be soon able to archive locally using the desktop application.
     </p>
     <p>
         You can use the application for various purposes:
@@ -16,28 +16,9 @@
             <li>Search title packs by name</li>
             <li>Manually download title packs if the ingame store is slow</li>
             <li>View title pack metadata, folders, and file metadata without installing the title packs</li>
-            <li>Analytics of player activity on these title packs (historically late, but better late than never)</li>
+            <li>(soon) Analytics of player activity on these title packs (historically late, but better late than never)</li>
         </ul>
     </p>
-
-    @if (Archive.Enabled)
-    {
-        <h3>Local archive</h3>
-        <p>
-            The local preservation archive currently tracks <b>@Archive.ArchivedResources.ToString("N0")</b> resources
-            (@ByteSizeLib.ByteSize.FromBytes(Archive.ArchivedBytes)).
-            It has updated <b>@Archive.UpdatedResources.ToString("N0")</b> resources since this application started.
-            @if (Archive.LastCompletedAt is { } lastCompletedAt)
-            {
-                <span>Its last synchronization completed @lastCompletedAt.ToString("u").</span>
-            }
-        </p>
-
-        @if (!string.IsNullOrWhiteSpace(Archive.LastError))
-        {
-            <p>The most recent archive synchronization ended in an error. See the application logs for details.</p>
-        }
-    }
 </ReuContainer>
 
 @code {
