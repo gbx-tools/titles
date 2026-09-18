@@ -18,7 +18,10 @@ public static class TitlesServiceExtensions
 
         services.AddScoped<TitleService>();
 
-        services.AddHybridCache();
+        services.AddHybridCache(options =>
+        {
+            options.MaximumPayloadBytes = 8 * 1024 * 1024; // 8 MiB
+        });
 
         services.AddHostedService<TitleFetchBackgroundService>();
 

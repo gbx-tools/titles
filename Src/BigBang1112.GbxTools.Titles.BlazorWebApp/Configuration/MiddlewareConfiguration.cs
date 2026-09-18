@@ -11,7 +11,7 @@ namespace BigBang1112.GbxTools.Titles.BlazorWebApp.Configuration
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseWebAssemblyDebugging();
+                // app.UseWebAssemblyDebugging();
             }
             else
             {

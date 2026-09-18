@@ -123,6 +123,15 @@ textarea.script {
     width: calc(100% - 10px);
 }
 
+.file-browser {
+    height: 24rem;
+    opacity: 0.9;
+}
+
+    .file-browser ::deep .reu-file-browser {
+        height: 100%;
+    }
+
 .included-packs {
     display: flex;
     flex-direction: column;

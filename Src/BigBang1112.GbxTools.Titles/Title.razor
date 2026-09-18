@@ -146,7 +146,9 @@
                     @if (Files?.Any() == true)
                     {
                         <h3 style="text-align: center">Contents</h3>
-                        <ReuFileBrowser Root="default"></ReuFileBrowser>
+                        <div class="file-browser">
+                            <ReuFileBrowser Root="@FileRoot"></ReuFileBrowser>
+                        </div>
                     }
 
                     @if (Scripts?.Any() == true)
@@ -317,6 +319,8 @@
 #endif
     public IEnumerable<TitleFileEntity>? Files { get; set; }
 
+    private IReuFolder? FileRoot { get; set; }
+
     [Parameter, EditorRequired]
     public string Uid { get; set; }
 
@@ -333,6 +337,7 @@
         if (firstRender)
         {
             Files ??= await TitleService.GetTitleFilesAsync(Uid);
+            FileRoot = TitleFileBrowserTree.Create(Files);
             Scripts ??= await TitleService.FetchTitleScriptsAsync(Uid);
             StateHasChanged();
         }
