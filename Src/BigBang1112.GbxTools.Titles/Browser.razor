@@ -1,7 +1,10 @@
 @using System.Collections.Immutable
+@using System.Text.Json
+@using Microsoft.JSInterop
 
 @inject NavigationManager NavManager
 @inject TitleService TitleService
+@inject IJSRuntime JS
 
 <input type="search" @oninput="OnSearchInputAsync" @onchange="OnSearchChangeAsync" placeholder="Search...">
 @if (loaded)
@@ -18,7 +21,7 @@
                             <div class="action"
                             style="background-image: url('_content/BigBang1112.GbxTools.Titles/img/keep@(pinnedTitles.Contains(title.Uid) ? "_fill" : "").svg')"
                             title="Pin"
-                            @onclick="() => TogglePin(title)" @onclick:stopPropagation="true"></div>
+                            @onclick="() => TogglePinAsync(title)" @onclick:stopPropagation="true"></div>
                         </div>
                         <div class="quickbuttons">
                             <a href="@title.DownloadUrl" onclick="arguments[0].stopPropagation()" class="download" title="Download Title.Pack.Gbx">
@@ -49,6 +52,7 @@ else
     private IEnumerable<SearchTitleInfo> titles = [];
     private string[] filters = [];
     private HashSet<string> pinnedTitles = [];
+    private const string PinsStorageKey = "titles.gbx.tools.pinned-titles";
 
     private string searchQuery = string.Empty;
 
@@ -92,12 +96,38 @@ else
         loaded = true;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            var serializedPins = await JS.InvokeAsync<string?>("localStorage.getItem", PinsStorageKey);
+            var storedPins = string.IsNullOrWhiteSpace(serializedPins)
+                ? []
+                : JsonSerializer.Deserialize<string[]>(serializedPins) ?? [];
+
+            pinnedTitles = storedPins
+                .Where(uid => !string.IsNullOrWhiteSpace(uid))
+                .ToHashSet(StringComparer.Ordinal);
+        }
+        catch (JSException)
+        {
+            // Local storage can be unavailable due to browser privacy settings.
+        }
+
+        StateHasChanged();
+    }
+
     private async Task SearchTitlesAsync()
     {
         titles = await TitleService.SearchTitlesAsync(searchQuery);
     }
 
-    private void TogglePin(SearchTitleInfo title)
+    private async Task TogglePinAsync(SearchTitleInfo title)
     {
         if (pinnedTitles.Contains(title.Uid))
         {
@@ -106,6 +136,15 @@ else
         else
         {
             pinnedTitles.Add(title.Uid);
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", PinsStorageKey, JsonSerializer.Serialize(pinnedTitles.Order()));
+        }
+        catch (JSException)
+        {
+            // Keep the pin for the current page even if it cannot be persisted.
         }
     }
 
