@@ -5,10 +5,9 @@
 
 <PageTitle>@MetadataTitle</PageTitle>
 <HeadContent>
-    <ReuMetadataTags Title="@MetadataTitle"
-                     SiteName="Title Archive"
-                     Description="@TitleInfo?.Punchline"
-                     ImagePath="@TitleInfo?.CardUrl"></ReuMetadataTags>
+    <MetadataTags Title="@MetadataTitle"
+                  Description="@TitleInfo?.Punchline"
+                  ImagePath="@TitleInfo?.CardUrl"></MetadataTags>
 </HeadContent>
 
 <div class="title-background" style="background-image: linear-gradient(to bottom, var(--color-image-bg-overlay-weak), var(--color-image-bg-overlay-strong)), url('@TitleInfo?.BackgroundUrl')">
@@ -349,7 +348,7 @@
     [Parameter, EditorRequired]
     public string Uid { get; set; }
 
-    private string MetadataTitle => $"{TitleInfo?.DeformattedName ?? "Title pack"} - Title Archive";
+    private string MetadataTitle => $"{TitleInfo?.DeformattedName ?? "Title pack"}";
 
     protected override async Task OnInitializedAsync()
     {
