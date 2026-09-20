@@ -1,6 +1,10 @@
 ﻿@page "/"
 @attribute [StreamRendering]
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Title Archive</PageTitle>
+<HeadContent>
+    <MetadataTags Title="Title Archive"
+                  Description="Browse and download ManiaPlanet title packs."></MetadataTags>
+</HeadContent>
 
 <Browser @rendermode="InteractiveServer"></Browser>

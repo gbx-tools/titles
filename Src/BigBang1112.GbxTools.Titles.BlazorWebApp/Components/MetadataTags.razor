@@ -1,0 +1,19 @@
+<ReuMetadataTags Title="@Title"
+                 SiteName="Title Archive"
+                 Description="@Description"
+                 ImagePath="@ImagePath"
+                 ThemeColor="@ThemeColor"></ReuMetadataTags>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; } = "Browse and download ManiaPlanet title packs.";
+
+    [Parameter]
+    public string? ImagePath { get; set; }
+
+    [Parameter]
+    public string? ThemeColor { get; set; }
+}

@@ -3,6 +3,14 @@
 @inject HttpClient Http
 @inject IServiceScopeFactory ServiceScopeFactory
 
+<PageTitle>@MetadataTitle</PageTitle>
+<HeadContent>
+    <ReuMetadataTags Title="@MetadataTitle"
+                     SiteName="Title Archive"
+                     Description="@TitleInfo?.Punchline"
+                     ImagePath="@TitleInfo?.CardUrl"></ReuMetadataTags>
+</HeadContent>
+
 <div class="title-background" style="background-image: linear-gradient(to bottom, var(--color-image-bg-overlay-weak), var(--color-image-bg-overlay-strong)), url('@TitleInfo?.BackgroundUrl')">
     <ReuContainer>
         @if (string.IsNullOrEmpty(Uid))
@@ -340,6 +348,8 @@
 
     [Parameter, EditorRequired]
     public string Uid { get; set; }
+
+    private string MetadataTitle => $"{TitleInfo?.DeformattedName ?? "Title pack"} - Title Archive";
 
     protected override async Task OnInitializedAsync()
     {
